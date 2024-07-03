@@ -1,0 +1,1 @@
+0 * * * * su - itversity -c /home/itversity/itversity-material/retail_pipeline/schedule_script.sh >> /home/itversity/cron.log 2>&1
