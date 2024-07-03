@@ -1,0 +1,349 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "a61f5df6-93de-446c-ba53-6798b39b3279",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-01T18:00:03.928559Z",
+     "iopub.status.busy": "2024-07-01T18:00:03.927451Z",
+     "iopub.status.idle": "2024-07-01T18:00:04.251046Z",
+     "shell.execute_reply": "2024-07-01T18:00:04.251403Z"
+    },
+    "papermill": {
+     "duration": 0.349959,
+     "end_time": "2024-07-01T18:00:04.251516",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:03.901557",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "from datetime import datetime\n",
+    "import pydoop.hdfs as hdfs"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "54c944c3-3a79-48a9-a830-150047377f43",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-01T18:00:04.273431Z",
+     "iopub.status.busy": "2024-07-01T18:00:04.273045Z",
+     "iopub.status.idle": "2024-07-01T18:00:04.278742Z",
+     "shell.execute_reply": "2024-07-01T18:00:04.278458Z"
+    },
+    "papermill": {
+     "duration": 0.017731,
+     "end_time": "2024-07-01T18:00:04.278817",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:04.261086",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "groups = os.listdir('/home/itversity/itversity-material/retail_pipeline/data')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea4b3f40-a585-4cb9-97eb-dce24adde8c3",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009421,
+     "end_time": "2024-07-01T18:00:04.297949",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:04.288528",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "- Function to write ingested files into a text file to skip them on the next round"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "08151d1d-1e47-48eb-bc42-56a3ffe433d6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-01T18:00:04.321217Z",
+     "iopub.status.busy": "2024-07-01T18:00:04.320831Z",
+     "iopub.status.idle": "2024-07-01T18:00:04.322799Z",
+     "shell.execute_reply": "2024-07-01T18:00:04.323066Z"
+    },
+    "papermill": {
+     "duration": 0.015839,
+     "end_time": "2024-07-01T18:00:04.323163",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:04.307324",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "def write_dirs_to_file(file_path, content_list):\n",
+    "    with open(file_path, 'r') as file:\n",
+    "            existing_content = file.read().splitlines()\n",
+    "            \n",
+    "    with open(file_path, 'a') as file:\n",
+    "        for item in content_list:\n",
+    "            if item not in existing_content:\n",
+    "                file.write(f\"{item}\\n\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "e42751f3-be19-4799-9ec2-480b0f943eea",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-01T18:00:04.353181Z",
+     "iopub.status.busy": "2024-07-01T18:00:04.352444Z",
+     "iopub.status.idle": "2024-07-01T18:00:04.365413Z",
+     "shell.execute_reply": "2024-07-01T18:00:04.364647Z"
+    },
+    "papermill": {
+     "duration": 0.032256,
+     "end_time": "2024-07-01T18:00:04.365564",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:04.333308",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "with open('/home/itversity/itversity-material/retail_pipeline/data/written_groups.txt', 'r') as file:\n",
+    "    skip_dir = file.read().splitlines()\n",
+    "    \n",
+    "filtered_dir = [group for group in groups if group not in skip_dir]\n",
+    "if filtered_dir:\n",
+    "    files = os.listdir(f\"/home/itversity/itversity-material/retail_pipeline/data/{filtered_dir[0]}\")\n",
+    "else:\n",
+    "    print(\"No new directories to process.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "14aad0ad-74eb-41e4-a13f-7aa51b49fa7d",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008644,
+     "end_time": "2024-07-01T18:00:04.385427",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:04.376783",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    " Function to rename the files"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "ee161aca-a9a7-47a1-8044-49354633b067",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-01T18:00:04.408512Z",
+     "iopub.status.busy": "2024-07-01T18:00:04.408023Z",
+     "iopub.status.idle": "2024-07-01T18:00:08.632653Z",
+     "shell.execute_reply": "2024-07-01T18:00:08.632961Z"
+    },
+    "papermill": {
+     "duration": 4.239024,
+     "end_time": "2024-07-01T18:00:08.633059",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:04.394035",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "('branches_SS_raw_4', '.csv')\n",
+      "Renamed /home/itversity/itversity-material/retail_pipeline/data/group4/branches_SS_raw_4.csv to /home/itversity/itversity-material/retail_pipeline/data/group4/branches_SS_raw_20240701_18.csv\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Uploaded /home/itversity/itversity-material/retail_pipeline/data/group4/branches_SS_raw_20240701_18.csv to /data/retail_bronze/20240701/18/branches_SS_raw_20240701_18.csv\n",
+      "('sales_agents_SS_raw_4', '.csv')\n",
+      "Renamed /home/itversity/itversity-material/retail_pipeline/data/group4/sales_agents_SS_raw_4.csv to /home/itversity/itversity-material/retail_pipeline/data/group4/sales_agents_SS_raw_20240701_18.csv\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Uploaded /home/itversity/itversity-material/retail_pipeline/data/group4/sales_agents_SS_raw_20240701_18.csv to /data/retail_bronze/20240701/18/sales_agents_SS_raw_20240701_18.csv\n",
+      "('sales_transactions_SS_raw_4', '.csv')\n",
+      "Renamed /home/itversity/itversity-material/retail_pipeline/data/group4/sales_transactions_SS_raw_4.csv to /home/itversity/itversity-material/retail_pipeline/data/group4/sales_transactions_SS_raw_20240701_18.csv\n",
+      "Uploaded /home/itversity/itversity-material/retail_pipeline/data/group4/sales_transactions_SS_raw_20240701_18.csv to /data/retail_bronze/20240701/18/sales_transactions_SS_raw_20240701_18.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "def rename_files_and_upload(local_directory, hdfs_directory):\n",
+    "    # Rename files\n",
+    "    for file_name in files:\n",
+    "        old_file_path = os.path.join(local_directory, file_name)\n",
+    "        \n",
+    "        # Get the current date and hour\n",
+    "        now = datetime.now()\n",
+    "        date_str = now.strftime(\"%Y%m%d\")\n",
+    "        hour_str = now.strftime(\"%H\")\n",
+    "        \n",
+    "        # Split the file name and extension\n",
+    "        split_name= os.path.splitext(file_name)\n",
+    "        print(split_name)\n",
+    "        # Create the new file name with the extension at the end\n",
+    "        new_file_name = f\"{split_name[0][:-2]}_{date_str}_{hour_str}{split_name[1]}\"\n",
+    "        new_file_path = os.path.join(local_directory, new_file_name)\n",
+    "        \n",
+    "        # Rename the file\n",
+    "        try:\n",
+    "            os.rename(old_file_path, new_file_path)\n",
+    "            print(f\"Renamed {old_file_path} to {new_file_path}\")\n",
+    "        except FileNotFoundError:\n",
+    "            print(\"no new files found\")\n",
+    "        \n",
+    "        # Upload the renamed file to HDFS\n",
+    "        hdfs.mkdir(f\"/data/retail_bronze/{date_str}/{hour_str}\")\n",
+    "        day_directory = os.path.join(hdfs_directory, date_str)\n",
+    "        hour_directory = os.path.join(day_directory, hour_str)\n",
+    "        hdfs_file_path = os.path.join(hour_directory, new_file_name)\n",
+    "        hdfs.put(new_file_path, hdfs_file_path)\n",
+    "        print(f\"Uploaded {new_file_path} to {hdfs_file_path}\")\n",
+    "\n",
+    "if filtered_dir:\n",
+    "    rename_files_and_upload(f\"/home/itversity/itversity-material/retail_pipeline/data/{filtered_dir[0]}\", '/data/retail_bronze')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "db3d53ce-08d8-4853-8c98-c62a95ab7a32",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009535,
+     "end_time": "2024-07-01T18:00:08.652700",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:08.643165",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "write the already ingested files to the log"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "6e0e8bb8-5b4e-4f5c-8203-f89e6239e151",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-01T18:00:08.677830Z",
+     "iopub.status.busy": "2024-07-01T18:00:08.677338Z",
+     "iopub.status.idle": "2024-07-01T18:00:08.686184Z",
+     "shell.execute_reply": "2024-07-01T18:00:08.685693Z"
+    },
+    "papermill": {
+     "duration": 0.023201,
+     "end_time": "2024-07-01T18:00:08.686288",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:08.663087",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "write_dirs_to_file('/home/itversity/itversity-material/retail_pipeline/data/written_groups.txt', groups)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6d574ef1-26d6-47d2-a827-90b2f2254f92",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008924,
+     "end_time": "2024-07-01T18:00:08.706375",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:08.697451",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3360026c-820e-4bfc-b7cf-3ea130055f58",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008772,
+     "end_time": "2024-07-01T18:00:08.724479",
+     "exception": false,
+     "start_time": "2024-07-01T18:00:08.715707",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.9"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 6.190896,
+   "end_time": "2024-07-01T18:00:09.051205",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "/home/itversity/itversity-material/retail_pipeline/ingestion_script.ipynb",
+   "output_path": "/home/itversity/itversity-material/retail_pipeline/execoutput.json",
+   "parameters": {},
+   "start_time": "2024-07-01T18:00:02.860309",
+   "version": "2.3.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
