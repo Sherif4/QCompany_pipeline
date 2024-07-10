@@ -87,7 +87,7 @@ The script follows these steps:
 
 This approach ensures only new directories are processed, files are renamed with timestamps for organization, and uploads are structured within HDFS.
 
-###############################################################
+***
 
 ## Data Processing Documentation for Sales_Transaction 
 
@@ -127,7 +127,7 @@ This approach ensures only new directories are processed, files are renamed with
 * **File Renaming:**
     * Renames the first file listed in the directory.
     * Uses `subprocess` to execute Hadoop file system commands for renaming based on information from the cleaned data.
-########################################################
+***
 
 ## Sales Transactions from Silver to Gold
 ## Processing Sales Transactions
@@ -179,8 +179,7 @@ The code first initializes a Spark session using `SparkSession.builder`. Here's 
     * The function creates a temporary table, saves the DataFrame to the temporary table using `writer.saveAsTable`, and constructs an `INSERT OVERWRITE` query that inserts data into the target Hive table.
     * Finally, it drops the temporary table using `subprocess.run` after the data is successfully inserted.
 
-###############################################################
-
+***
 ## Retail Data Warehouse: Dimension Tables
 
 This document describes the schema and process for creating and managing dimension tables in the retail data warehouse. Dimension tables provide detailed information about specific entities within the data warehouse, allowing for efficient analysis and querying.
