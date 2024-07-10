@@ -86,3 +86,44 @@ The script follows these steps:
 4. Records the processed directory name to prevent future re-processing.
 
 This approach ensures only new directories are processed, files are renamed with timestamps for organization, and uploads are structured within HDFS.
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+## Data Processing Documentation for Sales_Transaction 
+
+### Data Reading
+
+* **Input Data:** Reads Parquet data from a specified path in the HDFS bronze layer.
+* **Timeframe:** Targets data for the current date and hour.
+
+### Data Cleaning
+
+* **Email Cleaning:**
+    * Removes special characters from the `customer_email` column.
+    * Replaces ".comm" with ".com" in the `customer_email` column (assuming typos).
+
+* **Discount Calculation:**
+    * Computes a new column named `discount_perc` based on the presence/absence of values in boolean offer columns (`offer_1` to `offer_5`).
+
+### Data Transformation
+
+* **Column Handling:**
+    * Drops unnecessary columns: 
+        * `cleaned_email` (likely created during cleaning)
+        * `customer_email` (original column, potentially after cleaning)
+    * Renames column: `cusomter_lname` to `customer_lname` (fixing typo)
+
+### Data Writing
+
+* **Output:** Writes the modified DataFrame to the silver layer in HDFS for the current date and hour.
+
+### File Management
+
+* **File Listing:** Uses the `subprocess` module to list files in the silver layer directory.
+* **Error Handling:**
+    * Checks for errors during file listing.
+    * Prints error messages if encountered.
+
+* **File Renaming:**
+    * Renames the first file listed in the directory.
+    * Uses `subprocess` to execute Hadoop file system commands for renaming based on information from the cleaned data.
