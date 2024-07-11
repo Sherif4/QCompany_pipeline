@@ -104,7 +104,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.Customer_Dim (
   customer_lname STRING,
   customer_email String
 )
-CLUSTERED BY (customer_sur_key) INTO 6 BUCKETS
 STORED AS ORC;
 
 CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.Product_Dim (
@@ -113,7 +112,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.Product_Dim (
   product_name STRING,
   product_category STRING
 )
-CLUSTERED BY (product_sur_key) INTO 6 BUCKETS
 STORED AS ORC;
 
 CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.Branches_Dim (
@@ -123,7 +121,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.Branches_Dim (
   establish_date DATE,
   class STRING
 )
-CLUSTERED BY (branch_sur_key) INTO 6 BUCKETS
 STORED AS ORC;
 
 CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.sales_agents_Dim (
@@ -132,7 +129,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.sales_agents_Dim (
   name STRING,
   hire_date DATE
 )
-CLUSTERED BY (sales_agent_sur_key) INTO 6 BUCKETS
 STORED AS ORC;
 
 CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.date_Dim (
@@ -149,7 +145,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.date_Dim (
   date_sur_key BIGINT
 )
 PARTITIONED BY (year STRING)
-CLUSTERED BY (month) INTO 3 BUCKETS
 STORED AS ORC;
 
 CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.branches_TRX_fact (
@@ -163,15 +158,15 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.branches_TRX_fact (
   unit_price DECIMAL(15,5),
   discount_percentage INT,
   total_price DECIMAL(15,5),
-  payment_method STRING
+  insertion_date BIGINT
 )
+PARTITIONED BY (payment_method STRING)
 STORED AS ORC;
 
 CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.online_TRX_fact (
   transaction_id STRING,
   units BIGINT,
   unit_price DECIMAL(15,5),
-  payment_method STRING,
   discount_perc INT,
   total_price DECIMAL(15,5),
   customer_sur_key INT,
@@ -180,6 +175,8 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.online_TRX_fact (
   street STRING,
   city STRING,
   state STRING,
-  postal_code STRING
+  postal_code STRING,
+  insertion_date BIGINT
 )
+PARTITIONED BY (payment_method STRING)
 STORED AS ORC;
