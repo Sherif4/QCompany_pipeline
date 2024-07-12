@@ -180,3 +180,54 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.online_TRX_fact (
 )
 PARTITIONED BY (payment_method STRING)
 STORED AS ORC;
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+SELECT Product_Dim.product_id AS productId,
+           COUNT(*) AS count
+    FROM retail_DWH.branches_TRX_fact
+    JOIN retail_DWH.Product_Dim 
+    ON branches_TRX_fact.product_sur_key = product_dim.product_sur_key
+    join retail_DWH.online_TRX_fact
+    on online_TRX_fact.product_sur_key=product_dim.product_sur_key
+    GROUP BY product_dim.product_id
+    order by count desc
+    limit 5;
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+#most redeemed offers from customer
+SELECT Customer_Dim.customer_id,
+           COUNT(*) AS count,
+           branches_TRX_fact.discount_percentage,
+           online_TRX_fact.discount_perc
+    FROM branches_TRX_fact
+    JOIN Customer_Dim 
+    ON branches_TRX_fact.customer_sur_key = customer_dim.customer_sur_key
+    join online_TRX_fact
+    on online_TRX_fact.customer_sur_key=customer_dim.customer_sur_key
+    where branches_TRX_fact.discount_percentage != 0 and online_TRX_fact.discount_perc != 0
+    GROUP BY branches_TRX_fact.discount_percentage,online_TRX_fact.discount_perc,Customer_Dim.customer_id
+    order by count desc
+    limit 5;
+--------------------------------------------------------------------------------------------------------------------------------------------
+#most redeemed offers per product
+SELECT product_dim.product_id,
+           COUNT(*) AS count,
+           branches_TRX_fact.discount_percentage,
+           online_TRX_fact.discount_perc
+    FROM branches_TRX_fact
+    JOIN product_dim 
+    ON branches_TRX_fact.product_sur_key = product_dim.product_sur_key
+    join online_TRX_fact
+    on online_TRX_fact.product_sur_key=product_dim.product_sur_key
+    where branches_TRX_fact.discount_percentage != 0 and online_TRX_fact.discount_perc != 0
+    GROUP BY branches_TRX_fact.discount_percentage,online_TRX_fact.discount_perc,product_dim.product_id
+    order by count desc
+    limit 5;
+---------------------------------------------------------------------------------------------------------------------------------------------
+#lowest cities 
+select city,
+    count(transaction_id) as CountCity
+    from online_TRX_fact
+    group by city
+    order by CountCity asc;
