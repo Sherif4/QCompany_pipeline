@@ -1,18 +1,18 @@
 # Retail_pipeline_project
 
-[1. Project overview](#project-overview)  
-[2. Data Modeling](#data-modeling)
-[3. Batch Part](#batch-part)  
-[4. Business Requirements](#business-requirements)
-[5. Data Ingestion Script](#data-ingestion-script)
-[6. Data Processing for Sales Transaction](#data-processing-for-sales-transaction)
-[7. Sales Transactions from Silver to Gold](#sales-transactions-from-silver-to-gold)
-[8. Retail Data Warehouse Dimension Tables](#retail-data-warehouse-dimension-tables)
-[9. Fact Tables](#fact-tables)
-[10. Hive Creation](#hive-creation)
-[11. Streaming part](#streaming-part)
-[12. Kafka Producer](#kafka-producer)
-[12. Spark Streaming](#spark-streaming)
+##### [1. Project overview](#project-overview)  
+##### [2. Data Modeling](#data-modeling)
+##### [3. Batch Part](#batch-part)  
+##### [4. Business Requirements](#business-requirements)
+##### [5. Data Ingestion Script](#data-ingestion-script)
+##### [6. Data Processing for Sales Transaction](#data-processing-for-sales-transaction)
+##### [7. Sales Transactions from Silver to Gold](#sales-transactions-from-silver-to-gold)
+##### [8. Retail Data Warehouse Dimension Tables](#retail-data-warehouse-dimension-tables)
+##### [9. Fact Tables](#fact-tables)
+##### [10. Hive Creation](#hive-creation)
+##### [11. Streaming part](#streaming-part)
+##### [12. Kafka Producer](#kafka-producer)
+##### [12. Spark Streaming](#spark-streaming)
 
 ## Project overview
 
