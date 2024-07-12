@@ -11,12 +11,6 @@
 
 The script utilizes a dictionary named `conf` to define producer configuration details:
 
-* `bootstrap.servers`: The address of the Confluent Cloud Kafka cluster.
-* `security.protocol`: Security protocol used for communication (SASL_SSL in this case).
-* `sasl.mechanisms`: Authentication mechanism (PLAIN here).
-* `sasl.username`: Username for Confluent Cloud access.
-* `sasl.password`: Password for Confluent Cloud access 
-
 ```python
 conf = {
     'bootstrap.servers': '****',
@@ -26,6 +20,12 @@ conf = {
     'sasl.password': '****',
 }
 ```
+
+* `bootstrap.servers`: The address of the Confluent Cloud Kafka cluster.
+* `security.protocol`: Security protocol used for communication (SASL_SSL in this case).
+* `sasl.mechanisms`: Authentication mechanism (PLAIN here).
+* `sasl.username`: Username for Confluent Cloud access.
+* `sasl.password`: Password for Confluent Cloud access 
 
 **Note:** Replace the placeholder values for `sasl.username` and `sasl.password` with your actual Confluent Cloud credentials.
 
