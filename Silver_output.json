@@ -1,0 +1,373 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "b4b28241",
+   "metadata": {
+    "tags": [
+     "papermill-error-cell-tag"
+    ]
+   },
+   "source": [
+    "<span style=\"color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;\">An Exception was encountered at '<a href=\"#papermill-error-cell\">In [5]</a>'.</span>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "a2f66ff8-3c80-4614-b50b-f158fdc99ebe",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T19:05:03.332745Z",
+     "iopub.status.busy": "2024-07-12T19:05:03.330759Z",
+     "iopub.status.idle": "2024-07-12T19:05:03.519535Z",
+     "shell.execute_reply": "2024-07-12T19:05:03.519224Z"
+    },
+    "papermill": {
+     "duration": 0.224031,
+     "end_time": "2024-07-12T19:05:03.519624",
+     "exception": false,
+     "start_time": "2024-07-12T19:05:03.295593",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import re\n",
+    "from pyspark.sql import SparkSession\n",
+    "from functools import reduce\n",
+    "from pyspark.sql.functions import col, regexp_replace, trim, when\n",
+    "from pyspark.serializers import PickleSerializer, AutoBatchedSerializer\n",
+    "from datetime import datetime\n",
+    "import subprocess\n",
+    "from py4j.java_gateway import java_import\n",
+    "import os\n",
+    "import sys"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "6a0869a3-007a-4c17-87ad-249124794144",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T19:05:03.546477Z",
+     "iopub.status.busy": "2024-07-12T19:05:03.546090Z",
+     "iopub.status.idle": "2024-07-12T19:05:09.692242Z",
+     "shell.execute_reply": "2024-07-12T19:05:09.701468Z"
+    },
+    "papermill": {
+     "duration": 6.174072,
+     "end_time": "2024-07-12T19:05:09.705744",
+     "exception": false,
+     "start_time": "2024-07-12T19:05:03.531672",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "spark = SparkSession\\\n",
+    "    .builder\\\n",
+    "    .master(\"local[4]\")\\\n",
+    "    .appName(\"Silver_layer_transformation\")\\\n",
+    "    .config(\"spark.eventLog.logBlockUpdates.enabled\", True)\\\n",
+    "    .getOrCreate()\n",
+    "\n",
+    "sc = spark.sparkContext"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "af6c6bee-184c-4f08-92a9-35ce94ce5ae8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T19:05:09.788402Z",
+     "iopub.status.busy": "2024-07-12T19:05:09.786938Z",
+     "iopub.status.idle": "2024-07-12T19:05:09.846933Z",
+     "shell.execute_reply": "2024-07-12T19:05:09.845810Z"
+    },
+    "papermill": {
+     "duration": 0.124903,
+     "end_time": "2024-07-12T19:05:09.847357",
+     "exception": false,
+     "start_time": "2024-07-12T19:05:09.722454",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "now = datetime.now()\n",
+    "date_str = now.strftime(\"%Y%m%d\")\n",
+    "hour_str = now.strftime(\"%H\")\n",
+    "path = f\"hdfs:///data/retail_bronze/{date_str}/{hour_str}/sales_transactions_SS_raw_{date_str}_{hour_str}.parquet\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "4c80bfb5-9dce-43f2-b7a8-8c63c944e358",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T19:05:10.076723Z",
+     "iopub.status.busy": "2024-07-12T19:05:10.020105Z",
+     "iopub.status.idle": "2024-07-12T19:05:24.363441Z",
+     "shell.execute_reply": "2024-07-12T19:05:24.362673Z"
+    },
+    "papermill": {
+     "duration": 14.489396,
+     "end_time": "2024-07-12T19:05:24.363610",
+     "exception": false,
+     "start_time": "2024-07-12T19:05:09.874214",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "try:\n",
+    "    if os.system(f\"hdfs dfs -test -e {path}\") == 0:\n",
+    "        input_df = spark.read.parquet(path)\n",
+    "    else:\n",
+    "        raise SystemExit(f\"Path does not exist: {path}\")  # Exit with code 1 for missing path\n",
+    "except Exception as e:\n",
+    "    print(f\"An error occurred: {e}\")\n",
+    "    raise SystemExit(1)  # Exit with code 1 for other errors"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "81b4d587",
+   "metadata": {
+    "tags": [
+     "papermill-error-cell-tag"
+    ]
+   },
+   "source": [
+    "<span id=\"papermill-error-cell\" style=\"color:red; font-family:Helvetica Neue, Helvetica, Arial, sans-serif; font-size:2em;\">Execution using papermill encountered an exception here and stopped:</span>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "652fe7bd-3483-400e-b174-063205a74b40",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T19:05:24.394253Z",
+     "iopub.status.busy": "2024-07-12T19:05:24.393780Z",
+     "iopub.status.idle": "2024-07-12T19:05:24.507781Z",
+     "shell.execute_reply": "2024-07-12T19:05:24.506094Z"
+    },
+    "papermill": {
+     "duration": 0.131646,
+     "end_time": "2024-07-12T19:05:24.508084",
+     "exception": true,
+     "start_time": "2024-07-12T19:05:24.376438",
+     "status": "failed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "ename": "AttributeError",
+     "evalue": "'function' object has no attribute 'withColumn'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mAttributeError\u001b[0m                            Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-5-f5a76e6add4d>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mdf_cleaned\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0minput\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mwithColumn\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"cleaned_email\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtrim\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mregexp_replace\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mcol\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"cusomter_email\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34mr'[;*#()&}$\\[\\]\\{&\"\\'\\/>:\\%\\^|<\\\\]+.*$'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m''\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      2\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      3\u001b[0m \u001b[0mdf_cleaned\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mdf_cleaned\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mwithColumn\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"customer_email\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mregexp_replace\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mcol\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"cleaned_email\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34mr'\\.comm$'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m'.com'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0mdf_cleaned\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mselect\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"customer_email\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mshow\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mtruncate\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mFalse\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mAttributeError\u001b[0m: 'function' object has no attribute 'withColumn'"
+     ]
+    }
+   ],
+   "source": [
+    "df_cleaned = input.withColumn(\"cleaned_email\", trim(regexp_replace(col(\"cusomter_email\"), r'[;*#()&}$\\[\\]\\{&\"\\'\\/>:\\%\\^|<\\\\]+.*$', '')))\n",
+    "\n",
+    "df_cleaned = df_cleaned.withColumn(\"customer_email\", regexp_replace(col(\"cleaned_email\"), r'\\.comm$', '.com'))\n",
+    "df_cleaned.select(\"customer_email\").show(truncate=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d1cccf7-c4d8-42f4-84b7-2d0de0131c7f",
+   "metadata": {
+    "papermill": {
+     "duration": null,
+     "end_time": null,
+     "exception": null,
+     "start_time": null,
+     "status": "pending"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_cleaned = df_cleaned.withColumn(\"discount_perc\", when(col(\"offer_1\") == \"True\", 5). \n",
+    "                                   when(col(\"offer_2\") == \"True\", 10).\n",
+    "                                   when(col(\"offer_3\") == \"True\", 15).\n",
+    "                                   when(col(\"offer_4\") == \"True\", 20).\n",
+    "                                   when(col(\"offer_5\") == \"True\", 25).\n",
+    "                                   otherwise(0))\n",
+    "df_modified = df_cleaned.drop(\"cleaned_email\", \"cusomter_email\")\n",
+    "df_modified = df_modified.withColumnRenamed(\"cusomter_lname\", \"customer_lname\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8ea76738-08e0-4bfc-934b-482c0d3a8ae7",
+   "metadata": {
+    "papermill": {
+     "duration": null,
+     "end_time": null,
+     "exception": null,
+     "start_time": null,
+     "status": "pending"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_modified.repartition(1).write.mode('overwrite').parquet(f\"hdfs:///data/retail_silver/{date_str}/{hour_str}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8d780607-9d1f-40d4-9751-20a03171ac3a",
+   "metadata": {
+    "papermill": {
+     "duration": null,
+     "end_time": null,
+     "exception": null,
+     "start_time": null,
+     "status": "pending"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "list_files_process = subprocess.run([\"hadoop\", \"fs\", \"-ls\", \"-C\", f\"hdfs:///data/retail_silver/{date_str}/{hour_str}/\"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)                        "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "092156c7-6a93-4ac8-8d65-c62b4088da7a",
+   "metadata": {
+    "papermill": {
+     "duration": null,
+     "end_time": null,
+     "exception": null,
+     "start_time": null,
+     "status": "pending"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "if list_files_process.returncode != 0:\n",
+    "        print(f\"Error listing files in hdfs:///data/retail_silver/{date_str}/{hour_str}: {list_files_process.stderr.decode()}\")\n",
+    "else:\n",
+    "    stdout_str = list_files_process.stdout.decode()\n",
+    "    file_list = stdout_str.splitlines()\n",
+    "    file_to_rename = file_list[1]\n",
+    "    print(file_list[1])\n",
+    "    new_filename =f\"hdfs:///data/retail_silver/{date_str}/{hour_str}/sales_transactions_SS_cleaned_{date_str}_{hour_str}.parquet\"\n",
+    "    subprocess.run([\"hadoop\", \"fs\", \"-mv\", file_to_rename, new_filename])\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f1555dda-4fa4-48d7-b2f8-d49fad6bdcee",
+   "metadata": {
+    "papermill": {
+     "duration": null,
+     "end_time": null,
+     "exception": null,
+     "start_time": null,
+     "status": "pending"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_modified"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "87ee3534-ccc7-4115-941a-142e8c4fde35",
+   "metadata": {
+    "papermill": {
+     "duration": null,
+     "end_time": null,
+     "exception": null,
+     "start_time": null,
+     "status": "pending"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "spark.stop()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "287cf214-396c-4c06-b697-a3a14703b41c",
+   "metadata": {
+    "papermill": {
+     "duration": null,
+     "end_time": null,
+     "exception": null,
+     "start_time": null,
+     "status": "pending"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Pyspark 2",
+   "language": "python",
+   "name": "pyspark2"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.9"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 22.6765,
+   "end_time": "2024-07-12T19:05:24.841200",
+   "environment_variables": {},
+   "exception": true,
+   "input_path": "Silver_layer_transformation.ipynb",
+   "output_path": "Silver_output.json",
+   "parameters": {},
+   "start_time": "2024-07-12T19:05:02.164700",
+   "version": "2.3.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,475 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "a2f66ff8-3c80-4614-b50b-f158fdc99ebe",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:38.956592Z",
+     "iopub.status.busy": "2024-07-12T22:24:38.955156Z",
+     "iopub.status.idle": "2024-07-12T22:24:39.173424Z",
+     "shell.execute_reply": "2024-07-12T22:24:39.173091Z"
+    },
+    "papermill": {
+     "duration": 0.257751,
+     "end_time": "2024-07-12T22:24:39.173523",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:38.915772",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import re\n",
+    "from pyspark.sql import SparkSession\n",
+    "from functools import reduce\n",
+    "from pyspark.sql.functions import col, regexp_replace, trim, when\n",
+    "from pyspark.serializers import PickleSerializer, AutoBatchedSerializer\n",
+    "from datetime import datetime\n",
+    "import subprocess\n",
+    "from py4j.java_gateway import java_import\n",
+    "import os\n",
+    "import sys"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "6a0869a3-007a-4c17-87ad-249124794144",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:39.200487Z",
+     "iopub.status.busy": "2024-07-12T22:24:39.200023Z",
+     "iopub.status.idle": "2024-07-12T22:25:56.432008Z",
+     "shell.execute_reply": "2024-07-12T22:25:56.431456Z"
+    },
+    "papermill": {
+     "duration": 77.248514,
+     "end_time": "2024-07-12T22:25:56.432122",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:39.183608",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "spark = SparkSession\\\n",
+    "    .builder\\\n",
+    "    .master(\"local[4]\")\\\n",
+    "    .appName(\"Silver_layer_transformation\")\\\n",
+    "    .config(\"spark.eventLog.logBlockUpdates.enabled\", True)\\\n",
+    "    .getOrCreate()\n",
+    "\n",
+    "sc = spark.sparkContext"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "af6c6bee-184c-4f08-92a9-35ce94ce5ae8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:25:56.464722Z",
+     "iopub.status.busy": "2024-07-12T22:25:56.464237Z",
+     "iopub.status.idle": "2024-07-12T22:25:56.474020Z",
+     "shell.execute_reply": "2024-07-12T22:25:56.474449Z"
+    },
+    "papermill": {
+     "duration": 0.02736,
+     "end_time": "2024-07-12T22:25:56.474567",
+     "exception": false,
+     "start_time": "2024-07-12T22:25:56.447207",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "now = datetime.now()\n",
+    "date_str = now.strftime(\"%Y%m%d\")\n",
+    "hour_str = now.strftime(\"%H\")\n",
+    "path = f\"hdfs:///data/retail_bronze/{date_str}/{hour_str}/sales_transactions_SS_raw_{date_str}_{hour_str}.parquet\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "4c80bfb5-9dce-43f2-b7a8-8c63c944e358",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:25:56.511241Z",
+     "iopub.status.busy": "2024-07-12T22:25:56.510742Z",
+     "iopub.status.idle": "2024-07-12T22:26:01.477306Z",
+     "shell.execute_reply": "2024-07-12T22:26:01.476743Z"
+    },
+    "papermill": {
+     "duration": 4.990225,
+     "end_time": "2024-07-12T22:26:01.477445",
+     "exception": false,
+     "start_time": "2024-07-12T22:25:56.487220",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "try:\n",
+    "    if os.system(f\"hdfs dfs -test -e {path}\") == 0:\n",
+    "        input_df = spark.read.parquet(path)\n",
+    "    else:\n",
+    "        raise SystemExit(f\"Path does not exist: {path}\")  # Exit with code 1 for missing path\n",
+    "except Exception as e:\n",
+    "    print(f\"An error occurred: {e}\")\n",
+    "    raise SystemExit(1)  # Exit with code 1 for other errors"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "652fe7bd-3483-400e-b174-063205a74b40",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:26:01.508561Z",
+     "iopub.status.busy": "2024-07-12T22:26:01.507998Z",
+     "iopub.status.idle": "2024-07-12T22:26:03.045515Z",
+     "shell.execute_reply": "2024-07-12T22:26:03.045996Z"
+    },
+    "papermill": {
+     "duration": 1.555473,
+     "end_time": "2024-07-12T22:26:03.046120",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:01.490647",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "+---------------------------+\n",
+      "|customer_email             |\n",
+      "+---------------------------+\n",
+      "|james.smith@hotmail.com    |\n",
+      "|john.davis@gmail.com       |\n",
+      "|sophia.brown@hotmail.com   |\n",
+      "|michael.davis@hotmail.com  |\n",
+      "|sophia.taylor@gmail.com    |\n",
+      "|michael.smith@outlook.com  |\n",
+      "|john.johnson@outlook.com   |\n",
+      "|mia.johnson@gmail.com      |\n",
+      "|james.williams@gmail.com   |\n",
+      "|emma.wilson@outlook.com    |\n",
+      "|mia.jones@gmail.com        |\n",
+      "|alexander.smith@outlook.com|\n",
+      "|emma.miller@gmail.com      |\n",
+      "|ava.johnson@gmail.com      |\n",
+      "|michael.brown@gmail.com    |\n",
+      "|william.miller@yahoo.com   |\n",
+      "|ava.smith@gmail.com        |\n",
+      "|michael.davis@outlook.com  |\n",
+      "|ava.smith@gmail.com        |\n",
+      "|william.miller@hotmail.com |\n",
+      "+---------------------------+\n",
+      "only showing top 20 rows\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "df_cleaned = input_df.withColumn(\"cleaned_email\", trim(regexp_replace(col(\"cusomter_email\"), r'[;*#()&}$\\[\\]\\{&\"\\'\\/>:\\%\\^|<\\\\]+.*$', '')))\n",
+    "\n",
+    "df_cleaned = df_cleaned.withColumn(\"customer_email\", regexp_replace(col(\"cleaned_email\"), r'\\.comm$', '.com'))\n",
+    "df_cleaned.select(\"customer_email\").show(truncate=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "9d1cccf7-c4d8-42f4-84b7-2d0de0131c7f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:26:03.076993Z",
+     "iopub.status.busy": "2024-07-12T22:26:03.076304Z",
+     "iopub.status.idle": "2024-07-12T22:26:03.231423Z",
+     "shell.execute_reply": "2024-07-12T22:26:03.230772Z"
+    },
+    "papermill": {
+     "duration": 0.172468,
+     "end_time": "2024-07-12T22:26:03.231601",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:03.059133",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_cleaned = df_cleaned.withColumn(\"discount_perc\", when(col(\"offer_1\") == \"True\", 5). \n",
+    "                                   when(col(\"offer_2\") == \"True\", 10).\n",
+    "                                   when(col(\"offer_3\") == \"True\", 15).\n",
+    "                                   when(col(\"offer_4\") == \"True\", 20).\n",
+    "                                   when(col(\"offer_5\") == \"True\", 25).\n",
+    "                                   otherwise(0))\n",
+    "df_modified = df_cleaned.drop(\"cleaned_email\", \"cusomter_email\")\n",
+    "df_modified = df_modified.withColumnRenamed(\"cusomter_lname\", \"customer_lname\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "8ea76738-08e0-4bfc-934b-482c0d3a8ae7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:26:03.264859Z",
+     "iopub.status.busy": "2024-07-12T22:26:03.263773Z",
+     "iopub.status.idle": "2024-07-12T22:26:04.183592Z",
+     "shell.execute_reply": "2024-07-12T22:26:04.184016Z"
+    },
+    "papermill": {
+     "duration": 0.939161,
+     "end_time": "2024-07-12T22:26:04.184150",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:03.244989",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_modified.repartition(1).write.mode('overwrite').parquet(f\"hdfs:///data/retail_silver/{date_str}/{hour_str}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "8d780607-9d1f-40d4-9751-20a03171ac3a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:26:04.221201Z",
+     "iopub.status.busy": "2024-07-12T22:26:04.220651Z",
+     "iopub.status.idle": "2024-07-12T22:26:05.884274Z",
+     "shell.execute_reply": "2024-07-12T22:26:05.885123Z"
+    },
+    "papermill": {
+     "duration": 1.683128,
+     "end_time": "2024-07-12T22:26:05.885546",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:04.202418",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "list_files_process = subprocess.run([\"hadoop\", \"fs\", \"-ls\", \"-C\", f\"hdfs:///data/retail_silver/{date_str}/{hour_str}/\"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)                        "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "092156c7-6a93-4ac8-8d65-c62b4088da7a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:26:05.936874Z",
+     "iopub.status.busy": "2024-07-12T22:26:05.936048Z",
+     "iopub.status.idle": "2024-07-12T22:26:07.394596Z",
+     "shell.execute_reply": "2024-07-12T22:26:07.394085Z"
+    },
+    "papermill": {
+     "duration": 1.488434,
+     "end_time": "2024-07-12T22:26:07.394729",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:05.906295",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "hdfs:///data/retail_silver/20240712/22/part-00000-398268da-bdf8-48bb-91a3-8bf51d9c62ae-c000.snappy.parquet\n"
+     ]
+    }
+   ],
+   "source": [
+    "if list_files_process.returncode != 0:\n",
+    "        print(f\"Error listing files in hdfs:///data/retail_silver/{date_str}/{hour_str}: {list_files_process.stderr.decode()}\")\n",
+    "else:\n",
+    "    stdout_str = list_files_process.stdout.decode()\n",
+    "    file_list = stdout_str.splitlines()\n",
+    "    file_to_rename = file_list[1]\n",
+    "    print(file_list[1])\n",
+    "    new_filename =f\"hdfs:///data/retail_silver/{date_str}/{hour_str}/sales_transactions_SS_cleaned_{date_str}_{hour_str}.parquet\"\n",
+    "    subprocess.run([\"hadoop\", \"fs\", \"-mv\", file_to_rename, new_filename])\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "f1555dda-4fa4-48d7-b2f8-d49fad6bdcee",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:26:07.433341Z",
+     "iopub.status.busy": "2024-07-12T22:26:07.432954Z",
+     "iopub.status.idle": "2024-07-12T22:26:07.912775Z",
+     "shell.execute_reply": "2024-07-12T22:26:07.912408Z"
+    },
+    "papermill": {
+     "duration": 0.499341,
+     "end_time": "2024-07-12T22:26:07.912851",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:07.413510",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table border='1'>\n",
+       "<tr><th>transaction_date</th><th>transaction_id</th><th>customer_id</th><th>customer_fname</th><th>customer_lname</th><th>sales_agent_id</th><th>branch_id</th><th>product_id</th><th>product_name</th><th>product_category</th><th>offer_1</th><th>offer_2</th><th>offer_3</th><th>offer_4</th><th>offer_5</th><th>units</th><th>unit_price</th><th>is_online</th><th>payment_method</th><th>shipping_address</th><th>customer_email</th><th>discount_perc</th></tr>\n",
+       "<tr><td>2022-12-13</td><td>trx-675189967400</td><td>85552</td><td>James</td><td>Smith</td><td>8.0</td><td>3.0</td><td>20</td><td>Heels</td><td>Footwear</td><td>null</td><td>null</td><td>true</td><td>null</td><td>null</td><td>10</td><td>59.99</td><td>no</td><td>Credit Card</td><td>null</td><td>james.smith@hotma...</td><td>15</td></tr>\n",
+       "<tr><td>2023-2-22</td><td>trx-854274530672</td><td>85514</td><td>John</td><td>Davis</td><td>7.0</td><td>5.0</td><td>25</td><td>Washing Machine</td><td>Appliances</td><td>true</td><td>null</td><td>null</td><td>null</td><td>null</td><td>2</td><td>499.99</td><td>no</td><td>Cash</td><td>null</td><td>john.davis@gmail.com</td><td>5</td></tr>\n",
+       "<tr><td>2022-8-11</td><td>trx-133048404295</td><td>85464</td><td>Sophia</td><td>Brown</td><td>8.0</td><td>5.0</td><td>29</td><td>Hair Straightener</td><td>Appliances</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>4</td><td>39.99</td><td>no</td><td>Credit Card</td><td>null</td><td>sophia.brown@hotm...</td><td>0</td></tr>\n",
+       "<tr><td>2023-7-8</td><td>trx-945140296146</td><td>85545</td><td>Michael</td><td>Davis</td><td>7.0</td><td>1.0</td><td>1</td><td>Laptop</td><td>Electronics</td><td>null</td><td>null</td><td>null</td><td>true</td><td>null</td><td>4</td><td>999.99</td><td>no</td><td>Credit Card</td><td>null</td><td>michael.davis@hot...</td><td>20</td></tr>\n",
+       "<tr><td>2023-1-7</td><td>trx-309013678277</td><td>85558</td><td>Sophia</td><td>Taylor</td><td>10.0</td><td>3.0</td><td>22</td><td>Coffee Maker</td><td>Appliances</td><td>null</td><td>true</td><td>null</td><td>null</td><td>null</td><td>6</td><td>79.99</td><td>no</td><td>Cash</td><td>null</td><td>sophia.taylor@gma...</td><td>10</td></tr>\n",
+       "<tr><td>2023-8-4</td><td>trx-304375793435</td><td>85463</td><td>Michael</td><td>Smith</td><td>9.0</td><td>1.0</td><td>9</td><td>Boots</td><td>Footwear</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>5</td><td>129.99</td><td>no</td><td>Cash</td><td>null</td><td>michael.smith@out...</td><td>0</td></tr>\n",
+       "<tr><td>2022-6-20</td><td>trx-561475327270</td><td>85484</td><td>John</td><td>Johnson</td><td>2.0</td><td>4.0</td><td>17</td><td>Blouse</td><td>Clothing</td><td>null</td><td>null</td><td>null</td><td>true</td><td>null</td><td>7</td><td>29.99</td><td>no</td><td>Credit Card</td><td>null</td><td>john.johnson@outl...</td><td>20</td></tr>\n",
+       "<tr><td>2023-3-4</td><td>trx-443211888905</td><td>85497</td><td>Mia</td><td>Johnson</td><td>4.0</td><td>4.0</td><td>13</td><td>Printer</td><td>Electronics</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>4</td><td>149.99</td><td>no</td><td>Credit Card</td><td>null</td><td>mia.johnson@gmail...</td><td>0</td></tr>\n",
+       "<tr><td>2023-3-19</td><td>trx-128107621213</td><td>85530</td><td>James</td><td>Williams</td><td>9.0</td><td>1.0</td><td>27</td><td>Iron</td><td>Appliances</td><td>null</td><td>true</td><td>null</td><td>null</td><td>null</td><td>6</td><td>29.99</td><td>no</td><td>Cash</td><td>null</td><td>james.williams@gm...</td><td>10</td></tr>\n",
+       "<tr><td>2023-8-1</td><td>trx-960122701579</td><td>85547</td><td>Emma</td><td>Wilson</td><td>9.0</td><td>5.0</td><td>13</td><td>Printer</td><td>Electronics</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>3</td><td>149.99</td><td>no</td><td>Credit Card</td><td>null</td><td>emma.wilson@outlo...</td><td>0</td></tr>\n",
+       "<tr><td>2023-7-20</td><td>trx-603364138587</td><td>85475</td><td>Mia</td><td>Jones</td><td>6.0</td><td>1.0</td><td>18</td><td>Boots</td><td>Footwear</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>7</td><td>149.99</td><td>no</td><td>Cash</td><td>null</td><td>mia.jones@gmail.com</td><td>0</td></tr>\n",
+       "<tr><td>2023-12-24</td><td>trx-780346353876</td><td>85498</td><td>Alexander</td><td>Smith</td><td>8.0</td><td>2.0</td><td>19</td><td>Sandals</td><td>Footwear</td><td>true</td><td>null</td><td>null</td><td>null</td><td>null</td><td>2</td><td>29.99</td><td>no</td><td>Credit Card</td><td>null</td><td>alexander.smith@o...</td><td>5</td></tr>\n",
+       "<tr><td>2022-9-7</td><td>trx-592758092585</td><td>85546</td><td>Emma</td><td>Miller</td><td>5.0</td><td>1.0</td><td>9</td><td>Boots</td><td>Footwear</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>9</td><td>129.99</td><td>no</td><td>Credit Card</td><td>null</td><td>emma.miller@gmail...</td><td>0</td></tr>\n",
+       "<tr><td>2023-7-16</td><td>trx-461345904293</td><td>85489</td><td>Ava</td><td>Johnson</td><td>1.0</td><td>4.0</td><td>21</td><td>Microwave</td><td>Appliances</td><td>null</td><td>null</td><td>true</td><td>null</td><td>null</td><td>4</td><td>129.99</td><td>no</td><td>Credit Card</td><td>null</td><td>ava.johnson@gmail...</td><td>15</td></tr>\n",
+       "<tr><td>2023-4-3</td><td>trx-382275515172</td><td>85529</td><td>Michael</td><td>Brown</td><td>2.0</td><td>5.0</td><td>26</td><td>Vacuum Cleaner</td><td>Appliances</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>5</td><td>199.99</td><td>no</td><td>Cash</td><td>null</td><td>michael.brown@gma...</td><td>0</td></tr>\n",
+       "<tr><td>2023-3-2</td><td>trx-646080024600</td><td>85556</td><td>William</td><td>Miller</td><td>1.0</td><td>5.0</td><td>2</td><td>Smartphone</td><td>Electronics</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>1</td><td>699.99</td><td>no</td><td>Cash</td><td>null</td><td>william.miller@ya...</td><td>0</td></tr>\n",
+       "<tr><td>2022-5-25</td><td>trx-781711767136</td><td>85536</td><td>Ava</td><td>Smith</td><td>7.0</td><td>2.0</td><td>29</td><td>Hair Straightener</td><td>Appliances</td><td>true</td><td>null</td><td>null</td><td>null</td><td>null</td><td>6</td><td>39.99</td><td>no</td><td>Cash</td><td>null</td><td>ava.smith@gmail.com</td><td>5</td></tr>\n",
+       "<tr><td>2023-12-8</td><td>trx-573475596672</td><td>85481</td><td>Michael</td><td>Davis</td><td>7.0</td><td>3.0</td><td>29</td><td>Hair Straightener</td><td>Appliances</td><td>null</td><td>null</td><td>null</td><td>true</td><td>null</td><td>7</td><td>39.99</td><td>no</td><td>Credit Card</td><td>null</td><td>michael.davis@out...</td><td>20</td></tr>\n",
+       "<tr><td>2023-10-8</td><td>trx-462357861537</td><td>85536</td><td>Ava</td><td>Smith</td><td>2.0</td><td>2.0</td><td>24</td><td>Blender</td><td>Appliances</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>10</td><td>49.99</td><td>no</td><td>Cash</td><td>null</td><td>ava.smith@gmail.com</td><td>0</td></tr>\n",
+       "<tr><td>2023-1-27</td><td>trx-582369402411</td><td>85482</td><td>William</td><td>Miller</td><td>4.0</td><td>5.0</td><td>18</td><td>Boots</td><td>Footwear</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>3</td><td>149.99</td><td>no</td><td>Cash</td><td>null</td><td>william.miller@ho...</td><td>0</td></tr>\n",
+       "</table>\n",
+       "only showing top 20 rows\n"
+      ],
+      "text/plain": [
+       "+----------------+----------------+-----------+--------------+--------------+--------------+---------+----------+-----------------+----------------+-------+-------+-------+-------+-------+-----+----------+---------+--------------+----------------+--------------------+-------------+\n",
+       "|transaction_date|  transaction_id|customer_id|customer_fname|customer_lname|sales_agent_id|branch_id|product_id|     product_name|product_category|offer_1|offer_2|offer_3|offer_4|offer_5|units|unit_price|is_online|payment_method|shipping_address|      customer_email|discount_perc|\n",
+       "+----------------+----------------+-----------+--------------+--------------+--------------+---------+----------+-----------------+----------------+-------+-------+-------+-------+-------+-----+----------+---------+--------------+----------------+--------------------+-------------+\n",
+       "|      2022-12-13|trx-675189967400|      85552|         James|         Smith|           8.0|      3.0|        20|            Heels|        Footwear|   null|   null|   true|   null|   null|   10|     59.99|       no|   Credit Card|            null|james.smith@hotma...|           15|\n",
+       "|       2023-2-22|trx-854274530672|      85514|          John|         Davis|           7.0|      5.0|        25|  Washing Machine|      Appliances|   true|   null|   null|   null|   null|    2|    499.99|       no|          Cash|            null|john.davis@gmail.com|            5|\n",
+       "|       2022-8-11|trx-133048404295|      85464|        Sophia|         Brown|           8.0|      5.0|        29|Hair Straightener|      Appliances|   null|   null|   null|   null|   null|    4|     39.99|       no|   Credit Card|            null|sophia.brown@hotm...|            0|\n",
+       "|        2023-7-8|trx-945140296146|      85545|       Michael|         Davis|           7.0|      1.0|         1|           Laptop|     Electronics|   null|   null|   null|   true|   null|    4|    999.99|       no|   Credit Card|            null|michael.davis@hot...|           20|\n",
+       "|        2023-1-7|trx-309013678277|      85558|        Sophia|        Taylor|          10.0|      3.0|        22|     Coffee Maker|      Appliances|   null|   true|   null|   null|   null|    6|     79.99|       no|          Cash|            null|sophia.taylor@gma...|           10|\n",
+       "|        2023-8-4|trx-304375793435|      85463|       Michael|         Smith|           9.0|      1.0|         9|            Boots|        Footwear|   null|   null|   null|   null|   null|    5|    129.99|       no|          Cash|            null|michael.smith@out...|            0|\n",
+       "|       2022-6-20|trx-561475327270|      85484|          John|       Johnson|           2.0|      4.0|        17|           Blouse|        Clothing|   null|   null|   null|   true|   null|    7|     29.99|       no|   Credit Card|            null|john.johnson@outl...|           20|\n",
+       "|        2023-3-4|trx-443211888905|      85497|           Mia|       Johnson|           4.0|      4.0|        13|          Printer|     Electronics|   null|   null|   null|   null|   null|    4|    149.99|       no|   Credit Card|            null|mia.johnson@gmail...|            0|\n",
+       "|       2023-3-19|trx-128107621213|      85530|         James|      Williams|           9.0|      1.0|        27|             Iron|      Appliances|   null|   true|   null|   null|   null|    6|     29.99|       no|          Cash|            null|james.williams@gm...|           10|\n",
+       "|        2023-8-1|trx-960122701579|      85547|          Emma|        Wilson|           9.0|      5.0|        13|          Printer|     Electronics|   null|   null|   null|   null|   null|    3|    149.99|       no|   Credit Card|            null|emma.wilson@outlo...|            0|\n",
+       "|       2023-7-20|trx-603364138587|      85475|           Mia|         Jones|           6.0|      1.0|        18|            Boots|        Footwear|   null|   null|   null|   null|   null|    7|    149.99|       no|          Cash|            null| mia.jones@gmail.com|            0|\n",
+       "|      2023-12-24|trx-780346353876|      85498|     Alexander|         Smith|           8.0|      2.0|        19|          Sandals|        Footwear|   true|   null|   null|   null|   null|    2|     29.99|       no|   Credit Card|            null|alexander.smith@o...|            5|\n",
+       "|        2022-9-7|trx-592758092585|      85546|          Emma|        Miller|           5.0|      1.0|         9|            Boots|        Footwear|   null|   null|   null|   null|   null|    9|    129.99|       no|   Credit Card|            null|emma.miller@gmail...|            0|\n",
+       "|       2023-7-16|trx-461345904293|      85489|           Ava|       Johnson|           1.0|      4.0|        21|        Microwave|      Appliances|   null|   null|   true|   null|   null|    4|    129.99|       no|   Credit Card|            null|ava.johnson@gmail...|           15|\n",
+       "|        2023-4-3|trx-382275515172|      85529|       Michael|         Brown|           2.0|      5.0|        26|   Vacuum Cleaner|      Appliances|   null|   null|   null|   null|   null|    5|    199.99|       no|          Cash|            null|michael.brown@gma...|            0|\n",
+       "|        2023-3-2|trx-646080024600|      85556|       William|        Miller|           1.0|      5.0|         2|       Smartphone|     Electronics|   null|   null|   null|   null|   null|    1|    699.99|       no|          Cash|            null|william.miller@ya...|            0|\n",
+       "|       2022-5-25|trx-781711767136|      85536|           Ava|         Smith|           7.0|      2.0|        29|Hair Straightener|      Appliances|   true|   null|   null|   null|   null|    6|     39.99|       no|          Cash|            null| ava.smith@gmail.com|            5|\n",
+       "|       2023-12-8|trx-573475596672|      85481|       Michael|         Davis|           7.0|      3.0|        29|Hair Straightener|      Appliances|   null|   null|   null|   true|   null|    7|     39.99|       no|   Credit Card|            null|michael.davis@out...|           20|\n",
+       "|       2023-10-8|trx-462357861537|      85536|           Ava|         Smith|           2.0|      2.0|        24|          Blender|      Appliances|   null|   null|   null|   null|   null|   10|     49.99|       no|          Cash|            null| ava.smith@gmail.com|            0|\n",
+       "|       2023-1-27|trx-582369402411|      85482|       William|        Miller|           4.0|      5.0|        18|            Boots|        Footwear|   null|   null|   null|   null|   null|    3|    149.99|       no|          Cash|            null|william.miller@ho...|            0|\n",
+       "+----------------+----------------+-----------+--------------+--------------+--------------+---------+----------+-----------------+----------------+-------+-------+-------+-------+-------+-----+----------+---------+--------------+----------------+--------------------+-------------+\n",
+       "only showing top 20 rows"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_modified"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "87ee3534-ccc7-4115-941a-142e8c4fde35",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:26:07.942519Z",
+     "iopub.status.busy": "2024-07-12T22:26:07.941989Z",
+     "iopub.status.idle": "2024-07-12T22:26:08.745320Z",
+     "shell.execute_reply": "2024-07-12T22:26:08.746275Z"
+    },
+    "papermill": {
+     "duration": 0.820528,
+     "end_time": "2024-07-12T22:26:08.746526",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:07.925998",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "spark.stop()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "287cf214-396c-4c06-b697-a3a14703b41c",
+   "metadata": {
+    "papermill": {
+     "duration": 0.021153,
+     "end_time": "2024-07-12T22:26:08.790240",
+     "exception": false,
+     "start_time": "2024-07-12T22:26:08.769087",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Pyspark 2",
+   "language": "python",
+   "name": "pyspark2"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.9"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 91.280455,
+   "end_time": "2024-07-12T22:26:09.135701",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "/home/itversity/itversity-material/Retail_pipeline_project/Silver_layer_transformation.ipynb",
+   "output_path": "/home/itversity/itversity-material/Retail_pipeline_project/papermill_logs/Silver_output.json",
+   "parameters": {},
+   "start_time": "2024-07-12T22:24:37.855246",
+   "version": "2.3.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

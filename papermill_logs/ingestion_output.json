@@ -2,9 +2,24 @@
  "cells": [
   {
    "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": 1,
    "id": "a61f5df6-93de-446c-ba53-6798b39b3279",
-   "metadata": {},
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:31.199975Z",
+     "iopub.status.busy": "2024-07-12T22:24:31.195089Z",
+     "iopub.status.idle": "2024-07-12T22:24:31.855609Z",
+     "shell.execute_reply": "2024-07-12T22:24:31.855248Z"
+    },
+    "papermill": {
+     "duration": 0.703162,
+     "end_time": "2024-07-12T22:24:31.855686",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:31.152524",
+     "status": "completed"
+    },
+    "tags": []
+   },
    "outputs": [],
    "source": [
     "import os\n",
@@ -18,9 +33,22 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": 2,
    "id": "54c944c3-3a79-48a9-a830-150047377f43",
    "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:31.887153Z",
+     "iopub.status.busy": "2024-07-12T22:24:31.886506Z",
+     "iopub.status.idle": "2024-07-12T22:24:31.922156Z",
+     "shell.execute_reply": "2024-07-12T22:24:31.921514Z"
+    },
+    "papermill": {
+     "duration": 0.052006,
+     "end_time": "2024-07-12T22:24:31.922311",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:31.870305",
+     "status": "completed"
+    },
     "tags": []
    },
    "outputs": [
@@ -41,16 +69,38 @@
   {
    "cell_type": "markdown",
    "id": "ea4b3f40-a585-4cb9-97eb-dce24adde8c3",
-   "metadata": {},
+   "metadata": {
+    "papermill": {
+     "duration": 0.022744,
+     "end_time": "2024-07-12T22:24:31.965770",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:31.943026",
+     "status": "completed"
+    },
+    "tags": []
+   },
    "source": [
     "- Function to write ingested files into a text file to skip them on the next round"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": 3,
    "id": "08151d1d-1e47-48eb-bc42-56a3ffe433d6",
    "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:32.010861Z",
+     "iopub.status.busy": "2024-07-12T22:24:32.010362Z",
+     "iopub.status.idle": "2024-07-12T22:24:32.013136Z",
+     "shell.execute_reply": "2024-07-12T22:24:32.012772Z"
+    },
+    "papermill": {
+     "duration": 0.027616,
+     "end_time": "2024-07-12T22:24:32.013227",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:31.985611",
+     "status": "completed"
+    },
     "tags": []
    },
    "outputs": [],
@@ -66,9 +116,22 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": 4,
    "id": "e42751f3-be19-4799-9ec2-480b0f943eea",
    "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:32.056165Z",
+     "iopub.status.busy": "2024-07-12T22:24:32.055449Z",
+     "iopub.status.idle": "2024-07-12T22:24:32.069375Z",
+     "shell.execute_reply": "2024-07-12T22:24:32.068687Z"
+    },
+    "papermill": {
+     "duration": 0.039142,
+     "end_time": "2024-07-12T22:24:32.069512",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:32.030370",
+     "status": "completed"
+    },
     "tags": []
    },
    "outputs": [],
@@ -83,6 +146,13 @@
    "cell_type": "markdown",
    "id": "14aad0ad-74eb-41e4-a13f-7aa51b49fa7d",
    "metadata": {
+    "papermill": {
+     "duration": 0.014948,
+     "end_time": "2024-07-12T22:24:32.103250",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:32.088302",
+     "status": "completed"
+    },
     "tags": []
    },
    "source": [
@@ -91,9 +161,24 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 6,
+   "execution_count": 5,
    "id": "ee161aca-a9a7-47a1-8044-49354633b067",
-   "metadata": {},
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:32.140427Z",
+     "iopub.status.busy": "2024-07-12T22:24:32.140050Z",
+     "iopub.status.idle": "2024-07-12T22:24:32.143428Z",
+     "shell.execute_reply": "2024-07-12T22:24:32.142978Z"
+    },
+    "papermill": {
+     "duration": 0.025607,
+     "end_time": "2024-07-12T22:24:32.143508",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:32.117901",
+     "status": "completed"
+    },
+    "tags": []
+   },
    "outputs": [],
    "source": [
     "def rename_files_and_upload(local_directory, hdfs_directory):\n",
@@ -132,20 +217,53 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": 6,
    "id": "264e4db8-a75b-4e6e-b6d1-50a427a03393",
-   "metadata": {},
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:32.180556Z",
+     "iopub.status.busy": "2024-07-12T22:24:32.180068Z",
+     "iopub.status.idle": "2024-07-12T22:24:36.105815Z",
+     "shell.execute_reply": "2024-07-12T22:24:36.105130Z"
+    },
+    "papermill": {
+     "duration": 3.94771,
+     "end_time": "2024-07-12T22:24:36.106763",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:32.159053",
+     "status": "completed"
+    },
+    "tags": []
+   },
    "outputs": [
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "['branches_SS_raw_5.csv', 'sales_agents_SS_raw_5.csv', 'sales_transactions_SS_raw_5.csv']\n",
-      "('branches_SS_raw_5', '.csv')\n",
+      "['branches_SS_raw_4.csv', 'sales_agents_SS_raw_4.csv', 'sales_transactions_SS_raw_4.csv']\n",
+      "('branches_SS_raw_4', '.csv')\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
       "Uploaded branches_SS_raw_20240712_22.parquet to /data/retail_bronze/20240712/22/branches_SS_raw_20240712_22.parquet\n",
-      "('sales_agents_SS_raw_5', '.csv')\n",
+      "('sales_agents_SS_raw_4', '.csv')\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
       "Uploaded sales_agents_SS_raw_20240712_22.parquet to /data/retail_bronze/20240712/22/sales_agents_SS_raw_20240712_22.parquet\n",
-      "('sales_transactions_SS_raw_5', '.csv')\n",
+      "('sales_transactions_SS_raw_4', '.csv')\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
       "Uploaded sales_transactions_SS_raw_20240712_22.parquet to /data/retail_bronze/20240712/22/sales_transactions_SS_raw_20240712_22.parquet\n"
      ]
     }
@@ -164,16 +282,38 @@
   {
    "cell_type": "markdown",
    "id": "db3d53ce-08d8-4853-8c98-c62a95ab7a32",
-   "metadata": {},
+   "metadata": {
+    "papermill": {
+     "duration": 0.017038,
+     "end_time": "2024-07-12T22:24:36.148073",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:36.131035",
+     "status": "completed"
+    },
+    "tags": []
+   },
    "source": [
     "write the already ingested files to the log"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 8,
+   "execution_count": 7,
    "id": "6e0e8bb8-5b4e-4f5c-8203-f89e6239e151",
    "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-07-12T22:24:36.192183Z",
+     "iopub.status.busy": "2024-07-12T22:24:36.191486Z",
+     "iopub.status.idle": "2024-07-12T22:24:36.213793Z",
+     "shell.execute_reply": "2024-07-12T22:24:36.213136Z"
+    },
+    "papermill": {
+     "duration": 0.049311,
+     "end_time": "2024-07-12T22:24:36.213911",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:36.164600",
+     "status": "completed"
+    },
     "tags": []
    },
    "outputs": [],
@@ -183,9 +323,18 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": null,
    "id": "6d574ef1-26d6-47d2-a827-90b2f2254f92",
-   "metadata": {},
+   "metadata": {
+    "papermill": {
+     "duration": 0.01455,
+     "end_time": "2024-07-12T22:24:36.248386",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:36.233836",
+     "status": "completed"
+    },
+    "tags": []
+   },
    "outputs": [],
    "source": []
   },
@@ -193,7 +342,16 @@
    "cell_type": "code",
    "execution_count": null,
    "id": "3360026c-820e-4bfc-b7cf-3ea130055f58",
-   "metadata": {},
+   "metadata": {
+    "papermill": {
+     "duration": 0.015793,
+     "end_time": "2024-07-12T22:24:36.278675",
+     "exception": false,
+     "start_time": "2024-07-12T22:24:36.262882",
+     "status": "completed"
+    },
+    "tags": []
+   },
    "outputs": [],
    "source": []
   }
@@ -215,6 +373,18 @@
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
    "version": "3.6.9"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 6.778691,
+   "end_time": "2024-07-12T22:24:36.717655",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "/home/itversity/itversity-material/Retail_pipeline_project/ingestion_script.ipynb",
+   "output_path": "/home/itversity/itversity-material/retail_pipeline_project/papermill_logs/ingestion_output.json",
+   "parameters": {},
+   "start_time": "2024-07-12T22:24:29.938964",
+   "version": "2.3.4"
   }
  },
  "nbformat": 4,
