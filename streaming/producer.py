@@ -8,8 +8,8 @@ conf = {
     'bootstrap.servers': 'pkc-56d1g.eastus.azure.confluent.cloud:9092',
     'security.protocol': 'SASL_SSL',
     'sasl.mechanisms': 'PLAIN',
-    'sasl.username': 'JUKQQM4ZM632RECA',
-    'sasl.password': 'UUkrPuSttgOC0U9lY3ZansNsKfN9fbxZPFwrGxudDrfv+knTD4rCwK+KdIzVPX0D',
+    'sasl.username': '****',
+    'sasl.password': '****',
 }
 
 # add topic_name here 
