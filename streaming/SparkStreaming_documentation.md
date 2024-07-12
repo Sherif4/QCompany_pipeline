@@ -77,8 +77,8 @@ query = json_df \
   .writeStream \
   .outputMode("append") \
   .format("parquet") \
-  .option("path", "hdfs://localhost:9000/data/streaming/streaming-output") \
-  .option("checkpointLocation", "hdfs://localhost:9000/data/streaming/checkpoint") \
+  .option("path", "hdfs://your-hdfs-path/streaming-output") \
+  .option("checkpointLocation", "hdfs://your-hdfs-path/checkpoint") \
   .start()
 ```
 
