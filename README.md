@@ -27,7 +27,7 @@ The source system pushes 3 files every hour (branches file, sales agents file, s
 ***
 ## Data Modeling
 
-![dwh](DataWarehouse.drawio.png)
+![dwh](Data_Warehouse/DataWarehouse.drawio.png)
 ***
 ## Batch Part
 
