@@ -156,7 +156,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS retail_DWH.branches_TRX_fact (
   date_sur_key BIGINT,
   units BIGINT,
   unit_price DECIMAL(15,5),
-  discount_percentage INT,
+  discount_perc INT,
   total_price DECIMAL(15,5),
   insertion_date BIGINT
 )
@@ -198,30 +198,30 @@ SELECT Product_Dim.product_id AS productId,
 #most redeemed offers from customer
 SELECT Customer_Dim.customer_id,
            COUNT(*) AS count,
-           branches_TRX_fact.discount_percentage,
+           branches_TRX_fact.discount_perc,
            online_TRX_fact.discount_perc
     FROM branches_TRX_fact
     JOIN Customer_Dim 
     ON branches_TRX_fact.customer_sur_key = customer_dim.customer_sur_key
     join online_TRX_fact
     on online_TRX_fact.customer_sur_key=customer_dim.customer_sur_key
-    where branches_TRX_fact.discount_percentage != 0 and online_TRX_fact.discount_perc != 0
-    GROUP BY branches_TRX_fact.discount_percentage,online_TRX_fact.discount_perc,Customer_Dim.customer_id
+    where branches_TRX_fact.discount_perc != 0 and online_TRX_fact.discount_perc != 0
+    GROUP BY branches_TRX_fact.discount_perc,online_TRX_fact.discount_perc,Customer_Dim.customer_id
     order by count desc
     limit 5;
 --------------------------------------------------------------------------------------------------------------------------------------------
 #most redeemed offers per product
 SELECT product_dim.product_id,
            COUNT(*) AS count,
-           branches_TRX_fact.discount_percentage,
+           branches_TRX_fact.discount_perc,
            online_TRX_fact.discount_perc
     FROM branches_TRX_fact
     JOIN product_dim 
     ON branches_TRX_fact.product_sur_key = product_dim.product_sur_key
     join online_TRX_fact
     on online_TRX_fact.product_sur_key=product_dim.product_sur_key
-    where branches_TRX_fact.discount_percentage != 0 and online_TRX_fact.discount_perc != 0
-    GROUP BY branches_TRX_fact.discount_percentage,online_TRX_fact.discount_perc,product_dim.product_id
+    where branches_TRX_fact.discount_perc != 0 and online_TRX_fact.discount_perc != 0
+    GROUP BY branches_TRX_fact.discount_perc,online_TRX_fact.discount_perc,product_dim.product_id
     order by count desc
     limit 5;
 ---------------------------------------------------------------------------------------------------------------------------------------------

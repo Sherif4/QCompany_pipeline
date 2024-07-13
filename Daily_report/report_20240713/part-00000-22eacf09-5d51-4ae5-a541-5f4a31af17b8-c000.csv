@@ -1,0 +1,271 @@
+name,product_name,sum(units)
+John Doe,Iron,104
+Jane Smith,Hoodie,40
+John Doe,Sandals,164
+Michael Johnson,TV,56
+Sophia Moore,Electric Kettle,136
+Christopher Miller,Heels,60
+Emily Brown,Microwave,120
+John Doe,Heels,60
+Olivia Davis,Blouse,44
+Christopher Miller,Monitor,76
+David Wilson,Washing Machine,32
+John Doe,Boots,172
+Emma Taylor,Skirt,124
+Michael Johnson,Hoodie,56
+Christopher Miller,Hair Straightener,16
+Emma Taylor,Heels,64
+Emily Brown,Boots,144
+Christopher Miller,Hair Dryer,48
+John Doe,Washing Machine,60
+Emma Taylor,Blender,208
+David Wilson,Hair Straightener,12
+Christopher Miller,Smartphone,112
+Sophia Moore,Skirt,136
+Sophia Moore,Vacuum Cleaner,132
+Sophia Moore,Camera,20
+John Doe,TV,76
+Olivia Davis,Hair Straightener,88
+David Wilson,Heels,60
+David Wilson,Coffee Maker,32
+Sophia Moore,Heels,64
+Daniel Martinez,Laptop,116
+Michael Johnson,Vacuum Cleaner,88
+Emma Taylor,Microwave,20
+Sophia Moore,Blender,68
+John Doe,Blender,24
+Emma Taylor,Vacuum Cleaner,36
+Christopher Miller,Printer,96
+Michael Johnson,Electric Kettle,96
+Daniel Martinez,Jeans,104
+Daniel Martinez,Vacuum Cleaner,80
+David Wilson,Blender,52
+Olivia Davis,Laptop,36
+Daniel Martinez,Tablet,80
+David Wilson,Smartphone,52
+Emily Brown,Laptop,48
+Emily Brown,Headphones,64
+John Doe,Laptop,48
+Christopher Miller,Blender,88
+Michael Johnson,Blender,76
+Emily Brown,Smartphone,24
+Olivia Davis,Sandals,272
+Michael Johnson,Heels,44
+Olivia Davis,Coffee Maker,44
+Sophia Moore,Printer,216
+Emily Brown,Printer,68
+Daniel Martinez,Smartphone,144
+Michael Johnson,Blouse,96
+David Wilson,Tablet,48
+Daniel Martinez,Printer,72
+Emma Taylor,Camera,64
+Michael Johnson,Tablet,48
+Daniel Martinez,Blender,68
+Emma Taylor,Electric Kettle,36
+Jane Smith,Camera,4
+Olivia Davis,Vacuum Cleaner,72
+John Doe,Blouse,52
+Emma Taylor,Hair Dryer,68
+Jane Smith,Hair Dryer,36
+Daniel Martinez,Skirt,12
+Emily Brown,Vacuum Cleaner,36
+Daniel Martinez,Washing Machine,140
+Christopher Miller,Headphones,104
+Christopher Miller,Tablet,72
+John Doe,Monitor,44
+Sophia Moore,Hair Straightener,96
+Jane Smith,Monitor,12
+John Doe,Jeans,100
+Michael Johnson,T-Shirt,84
+Sophia Moore,T-Shirt,96
+Christopher Miller,Vacuum Cleaner,112
+Emily Brown,Blouse,136
+Christopher Miller,Blouse,24
+Emma Taylor,TV,72
+John Doe,Headphones,28
+Olivia Davis,Headphones,68
+David Wilson,Vacuum Cleaner,56
+Sophia Moore,Hair Dryer,88
+Jane Smith,Sneakers,56
+Emma Taylor,Printer,140
+Emily Brown,Hair Dryer,116
+Jane Smith,Washing Machine,132
+John Doe,Vacuum Cleaner,76
+David Wilson,Sandals,120
+Jane Smith,Microwave,48
+Emma Taylor,Monitor,40
+Emma Taylor,Dress,40
+Emma Taylor,Boots,224
+Daniel Martinez,Hair Dryer,152
+Emily Brown,Washing Machine,88
+Olivia Davis,Monitor,72
+Christopher Miller,Boots,208
+Olivia Davis,Smartphone,32
+David Wilson,Boots,96
+David Wilson,Laptop,64
+David Wilson,Skirt,60
+Michael Johnson,Dress,80
+David Wilson,T-Shirt,52
+Daniel Martinez,Blouse,88
+Jane Smith,Jeans,104
+John Doe,Dress,116
+David Wilson,Printer,40
+Emily Brown,Hoodie,44
+Jane Smith,Skirt,148
+Emma Taylor,Washing Machine,8
+Christopher Miller,Toaster,176
+Olivia Davis,Camera,68
+Sophia Moore,Blouse,108
+Emily Brown,T-Shirt,92
+David Wilson,Camera,152
+Jane Smith,Toaster,156
+David Wilson,Microwave,68
+Daniel Martinez,Iron,52
+Olivia Davis,Dress,96
+Emma Taylor,Hoodie,16
+Daniel Martinez,Camera,88
+Emma Taylor,T-Shirt,92
+Olivia Davis,TV,36
+Olivia Davis,Washing Machine,64
+Olivia Davis,Tablet,36
+Emily Brown,Monitor,32
+Michael Johnson,Monitor,4
+Sophia Moore,Headphones,164
+Christopher Miller,Coffee Maker,96
+Daniel Martinez,Electric Kettle,68
+Jane Smith,Vacuum Cleaner,40
+Olivia Davis,Electric Kettle,52
+Michael Johnson,Iron,88
+Daniel Martinez,Toaster,64
+Jane Smith,Boots,168
+Jane Smith,Sandals,128
+Sophia Moore,Jeans,136
+Emily Brown,Skirt,136
+David Wilson,TV,80
+Olivia Davis,Skirt,68
+Jane Smith,Heels,60
+Emma Taylor,Sandals,100
+Sophia Moore,Toaster,84
+Sophia Moore,Dress,52
+John Doe,Coffee Maker,124
+David Wilson,Blouse,100
+Christopher Miller,Sneakers,56
+Michael Johnson,Skirt,36
+Emma Taylor,Toaster,36
+Jane Smith,Printer,80
+Daniel Martinez,Heels,56
+Sophia Moore,Washing Machine,64
+Christopher Miller,T-Shirt,40
+Michael Johnson,Sandals,172
+Emily Brown,Iron,16
+Christopher Miller,Sandals,156
+John Doe,Electric Kettle,60
+Michael Johnson,Washing Machine,124
+Emma Taylor,Hair Straightener,140
+Emily Brown,Blender,140
+Daniel Martinez,Boots,312
+Emily Brown,Coffee Maker,76
+Emily Brown,Toaster,72
+Christopher Miller,Camera,48
+Daniel Martinez,Sneakers,80
+John Doe,Camera,136
+David Wilson,Headphones,92
+Emily Brown,Hair Straightener,68
+John Doe,Hoodie,16
+Michael Johnson,Sneakers,108
+Emma Taylor,Blouse,68
+Jane Smith,Coffee Maker,88
+Daniel Martinez,TV,52
+Daniel Martinez,T-Shirt,108
+Emma Taylor,Headphones,132
+Olivia Davis,Boots,156
+Michael Johnson,Microwave,120
+Christopher Miller,Electric Kettle,148
+Sophia Moore,Sneakers,64
+Jane Smith,Headphones,196
+Emily Brown,Dress,92
+Michael Johnson,Jeans,72
+Christopher Miller,Washing Machine,68
+Olivia Davis,Hoodie,148
+David Wilson,Hair Dryer,80
+Christopher Miller,Skirt,12
+Jane Smith,Blender,60
+Michael Johnson,Hair Straightener,36
+Emily Brown,Heels,20
+Emily Brown,Jeans,40
+Emma Taylor,Sneakers,72
+Daniel Martinez,Monitor,88
+Olivia Davis,Iron,28
+Jane Smith,Smartphone,188
+Jane Smith,Iron,56
+Sophia Moore,Laptop,8
+Sophia Moore,Hoodie,20
+David Wilson,Electric Kettle,152
+Daniel Martinez,Hair Straightener,36
+Jane Smith,Blouse,64
+Daniel Martinez,Hoodie,104
+Olivia Davis,Toaster,72
+Michael Johnson,Printer,28
+David Wilson,Dress,140
+Sophia Moore,TV,100
+Michael Johnson,Laptop,84
+Daniel Martinez,Coffee Maker,64
+Michael Johnson,Camera,108
+Michael Johnson,Hair Dryer,44
+Christopher Miller,Hoodie,40
+John Doe,Skirt,60
+Sophia Moore,Monitor,120
+Sophia Moore,Smartphone,64
+John Doe,Microwave,84
+Jane Smith,Electric Kettle,84
+Michael Johnson,Toaster,100
+David Wilson,Toaster,72
+Daniel Martinez,Sandals,52
+Olivia Davis,Blender,32
+David Wilson,Hoodie,80
+Michael Johnson,Smartphone,104
+Michael Johnson,Boots,104
+Christopher Miller,Jeans,96
+Christopher Miller,Iron,72
+Jane Smith,Tablet,144
+Emily Brown,Camera,44
+John Doe,Sneakers,112
+Emily Brown,Sneakers,68
+Daniel Martinez,Headphones,100
+Sophia Moore,Sandals,168
+John Doe,Toaster,68
+Emma Taylor,Laptop,44
+Emma Taylor,Tablet,88
+John Doe,Tablet,44
+Emily Brown,Electric Kettle,120
+Jane Smith,Laptop,44
+Olivia Davis,Microwave,48
+David Wilson,Monitor,40
+Sophia Moore,Boots,164
+David Wilson,Iron,52
+John Doe,T-Shirt,168
+Emma Taylor,Iron,36
+Olivia Davis,Heels,84
+John Doe,Hair Straightener,88
+John Doe,Smartphone,108
+Christopher Miller,Dress,16
+Jane Smith,TV,8
+David Wilson,Sneakers,44
+Christopher Miller,TV,68
+John Doe,Hair Dryer,8
+Daniel Martinez,Microwave,24
+Olivia Davis,Printer,72
+Jane Smith,Dress,36
+Emma Taylor,Coffee Maker,16
+David Wilson,Jeans,132
+Sophia Moore,Tablet,44
+Michael Johnson,Headphones,124
+Emily Brown,TV,4
+Olivia Davis,Sneakers,272
+Olivia Davis,T-Shirt,52
+Sophia Moore,Microwave,108
+Emily Brown,Sandals,184
+Emily Brown,Tablet,116
+Jane Smith,Hair Straightener,72
+Emma Taylor,Jeans,72
+John Doe,Printer,104
